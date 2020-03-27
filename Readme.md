@@ -2,7 +2,7 @@
 
 ## Objetivos
 
-- Tratamiento de datos de Victimas/Insidiados de la Fiscalia en formato CSV
+- Tratamiento de datos de Victimas/Indiciados de la Fiscalia en formato CSV
 - Encontrar información mediante kmeans/redes neuronales/Covering
 - Datos importantes: #Secuestros, #Desapariciones forzadas /por año /por departamento /# de condenados /denuncias
 
