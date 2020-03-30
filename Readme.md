@@ -3,7 +3,7 @@
 ## Objetivos
 
 - Tratamiento de datos de Victimas/Indiciados de la Fiscalia en formato CSV
-- Encontrar información mediante kmeans/redes neuronales/Covering
+- Encontrar información mediante kmeans/redes neuronales/rn convolucionales
 - Datos importantes: #Secuestros, #Desapariciones forzadas /por año /por departamento /# de condenados /denuncias
 
 ## Ideas
@@ -14,5 +14,4 @@
 
 ## Tecnologías
 
-- RStudio(?
-- Python + Tensorflow (?)
+- Python + Tensorflow/NumPy/Pandas/Matplotlib/JupyterLab
