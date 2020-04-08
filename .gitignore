@@ -1,0 +1,4 @@
+venv/
+.ipynb_*/
+__pycache__/
+victimas.csv
