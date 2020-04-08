@@ -83,10 +83,46 @@ def limpiarCategoríasSecuestros():
     dfSecuestros['GRUPO_EDAD_VICTIMA'] = dfSecuestros['GRUPO_EDAD_VICTIMA'].apply(grupoEdad)
     
     dfSecuestros.to_csv('DataSetSecuestros.csv', index=False)
+
+def agruparVictimasAnios(aniosEntrada=5, aniosSalida=1):
+    df = pd.read_csv('DataSetSecuestros.csv')
+    
+    dfConteoVictimas = df[['ANIO_HECHO','TOTAL_VICTIMAS']].groupby(['ANIO_HECHO']).sum()
+    #dfConteoVictimas = dfConteoVictimas.loc[dfConteoVictimas['ANIO_HECHO']!= 'SIN_REGISTRO']
+    
+    group = list(map(lambda x: x[1]['TOTAL_VICTIMAS'] if x[0] != "SIN REGISTRO" else -1,dfConteoVictimas.iterrows()))
+    
+    to_df = {}
+    
+    for i in range(aniosEntrada):
+        to_df['Input_'+str(i)] = []
+    
+    for i in range(aniosSalida):
+        to_df['Output_'+str(i)] = []
+        
+    for i in range(0,len(group)-(aniosEntrada+aniosSalida)):
+        inputs = group[i:i+aniosEntrada]
+        for input_with_index in zip(range(aniosEntrada),inputs):
+            index, the_input = input_with_index
+            to_df['Input_'+str(index)].append(the_input)
+        
+        j=i+aniosEntrada
+        outputs = group[j:j+aniosSalida]
+        for output_with_index in zip(range(aniosSalida),outputs):
+            index, the_output = output_with_index
+            to_df['Output_'+str(index)].append(the_output)
+    
+    #for key in to_df.keys():
+        #print(len(to_df[key]))
+    
+    the_dataframe = pd.DataFrame(to_df)
+    the_dataframe.to_csv('DataSetVictimasAnios{}x{}.csv'.format(aniosEntrada,aniosSalida),index=False)
+
     
     
 if __name__ == '__main__':
-    limpiarCategoríasSecuestros()
+    #limpiarCategoríasSecuestros()
+    #agruparVictimasAnios()
     #cleanF(targetFile='Diccionarios/Etapas.txt',sourceFile='Diccionarios/Etapas.txt.1')
     #cleanF(targetFile='Diccionarios/Leyes.txt',sourceFile='Diccionarios/Leyes.txt.1')
     #cleanF(targetFile='Diccionarios/Seccionales.txt',sourceFile='Diccionarios/Seccionales.txt.1')
