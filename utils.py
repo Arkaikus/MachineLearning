@@ -31,8 +31,8 @@ def aCategoria(valor):
         else: 
             return 0
         
-def limpiarCategoríasSecuestros():
-    dfSecuestros = pd.read_csv('ConteoVictimasSecuestros.csv')
+def limpiarCategorias(archivo="ConteoVictimasSecuestros.csv",archivoSalida="DataSetSecuestros.csv"):
+    dfSecuestros = pd.read_csv(archivo)
     dfSecuestros = dfSecuestros.drop(columns="DELITO")
     dfSecuestros = dfSecuestros.drop(columns="ANIO_ENTRADA")
     # Convertir categorias y limpiear datos
@@ -82,10 +82,10 @@ def limpiarCategoríasSecuestros():
     
     dfSecuestros['GRUPO_EDAD_VICTIMA'] = dfSecuestros['GRUPO_EDAD_VICTIMA'].apply(grupoEdad)
     
-    dfSecuestros.to_csv('DataSetSecuestros.csv', index=False)
+    dfSecuestros.to_csv(archivoSalida, index=False)
 
-def agruparVictimasAnios(aniosEntrada=5, aniosSalida=1):
-    df = pd.read_csv('DataSetSecuestros.csv')
+def agruparVictimasAnios(aniosEntrada=5, aniosSalida=1, dataSet = "DataSetSecuestros.csv"):
+    df = pd.read_csv(dataSet)
     
     dfConteoVictimas = df[['ANIO_HECHO','TOTAL_VICTIMAS']].groupby(['ANIO_HECHO']).sum()
     #dfConteoVictimas = dfConteoVictimas.loc[dfConteoVictimas['ANIO_HECHO']!= 'SIN_REGISTRO']
@@ -116,13 +116,14 @@ def agruparVictimasAnios(aniosEntrada=5, aniosSalida=1):
         #print(len(to_df[key]))
     
     the_dataframe = pd.DataFrame(to_df)
-    the_dataframe.to_csv('DataSetVictimasAnios{}x{}.csv'.format(aniosEntrada,aniosSalida),index=False)
+    the_dataframe.to_csv('{}{}x{}.csv'.format(dataSet.rstrip('.csv'),aniosEntrada,aniosSalida),index=False)
 
     
     
 if __name__ == '__main__':
-    #limpiarCategoríasSecuestros()
-    #agruparVictimasAnios()
+    #limpiarCategorias()
+    #limpiarCategorias(archivo="ConteoVictimasDesapariciones.csv",archivoSalida="DataSetDesapariciones.csv")    
+    #agruparVictimasAnios(aniosEntrada=5, aniosSalida=1, dataSet='DataSetDesapariciones.csv')
     #cleanF(targetFile='Diccionarios/Etapas.txt',sourceFile='Diccionarios/Etapas.txt.1')
     #cleanF(targetFile='Diccionarios/Leyes.txt',sourceFile='Diccionarios/Leyes.txt.1')
     #cleanF(targetFile='Diccionarios/Seccionales.txt',sourceFile='Diccionarios/Seccionales.txt.1')
