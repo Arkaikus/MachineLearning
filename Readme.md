@@ -27,12 +27,16 @@
 
 ## Tecnologías
 
-- Python + Tensorflow/NumPy/Pandas/Matplotlib/JupyterLab/sklearn
+- Python + Tensorflow/NumPy/Pandas/Matplotlib/JupyterLab/sklearn/GeoPandas/Descartes
 
 ## Datos de la Fiscalía
 
 [Conteo de Victimas](https://www.datos.gov.co/Justicia-y-Derecho/Conteo-de-V-ctimas/sft7-9im5)
 > Contiene muchos registros, pero solo nos interesa aquellos cuyo delito sea Secuestro o Desaparición
+
+## Mapa Colombia GeoJSON
+
+https://bl.ocks.org/john-guerra/43c7656821069d00dcbc
 
 ### Filtrar Datos
 
@@ -51,3 +55,4 @@ Revisar utils.py
 - [Classify Structured Data w/ Feature Columns](https://www.tensorflow.org/tutorials/structured_data/feature_columns)
 - [Introducing TensorFlow Feature Columns](https://developers.googleblog.com/2017/11/introducing-tensorflow-feature-columns.html)
 - [Regression Keras](https://www.pluralsight.com/guides/regression-keras)
+- [Map with GeoPandas](https://github.com/bendoesdata/make-a-map-geopandas)

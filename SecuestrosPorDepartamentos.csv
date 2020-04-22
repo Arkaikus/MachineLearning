@@ -1,36 +1,35 @@
-"","Var1","Freq"
-"1","POR ESTABLECER",2
-"2","Guainía",24
-"3","Vaupés",26
-"4","Archipiélago de San Andrés, Providencia y Santa Catalina",33
-"5","Amazonas",42
-"6","Vichada",68
-"7","",126
-"8","Guaviare",155
-"9","Córdoba",384
-"10","Casanare",439
-"11","Atlántico",557
-"12","Bolívar",582
-"13","Cesar",589
-"14","Chocó",641
-"15","Caldas",676
-"16","Arauca",749
-"17","Huila",780
-"18","Risaralda",783
-"19","Santander",1118
-"20","Quindío",1129
-"21","La Guajira",1168
-"22","Putumayo",1246
-"23","Meta",1272
-"24","Sucre",1298
-"25","Cundinamarca",1315
-"26","Norte de Santander",1369
-"27","Magdalena",1373
-"28","Tolima",1522
-"29","Cauca",1659
-"30","Nariño",2002
-"31","Caquetá",2048
-"32","Boyaca",2439
-"33","BOGOTÁ, D. C.",2766
-"34","Valle del Cauca",4314
-"35","Antioquia",5269
+DEPARTAMENTO,TOTAL_VICTIMAS
+AMAZONAS,43
+ANTIOQUIA,9212
+ARAUCA,986
+"ARCHIPIÉLAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA",39
+ATLÁNTICO,824
+"BOGOTÁ, D. C.",5985
+BOLÍVAR,732
+BOYACA,3404
+CALDAS,896
+CAQUETÁ,3127
+CASANARE,546
+CAUCA,2107
+CESAR,772
+CHOCÓ,1046
+CUNDINAMARCA,1500
+CÓRDOBA,532
+GUAINÍA,25
+GUAVIARE,485
+HUILA,908
+LA GUAJIRA,1832
+MAGDALENA,2195
+META,2590
+NAN,156
+NARIÑO,2534
+NORTE DE SANTANDER,1802
+PUTUMAYO,2195
+QUINDÍO,1813
+RISARALDA,964
+SANTANDER,1455
+SUCRE,2925
+TOLIMA,1808
+VALLE DEL CAUCA,6621
+VAUPÉS,173
+VICHADA,99

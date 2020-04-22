@@ -118,7 +118,13 @@ def agruparVictimasAnios(aniosEntrada=5, aniosSalida=1, dataSet = "DataSetSecues
     the_dataframe = pd.DataFrame(to_df)
     the_dataframe.to_csv('{}{}x{}.csv'.format(dataSet.rstrip('.csv'),aniosEntrada,aniosSalida),index=False)
 
-    
+
+def secuestrosDepartamentos():
+    df= pd.read_csv('ConteoVictimasSecuestros.csv')
+    df = df[df.DEPARTAMENTO != 'POR ESTABLECER']
+    df['DEPARTAMENTO'] = df['DEPARTAMENTO'].apply(lambda x: str(x).upper())
+    df = df[['DEPARTAMENTO','TOTAL_VICTIMAS']].groupby('DEPARTAMENTO')['TOTAL_VICTIMAS'].sum()
+    df.to_csv('SecuestrosPorDepartamentos.csv')
     
 if __name__ == '__main__':
     #limpiarCategorias()
@@ -127,4 +133,5 @@ if __name__ == '__main__':
     #cleanF(targetFile='Diccionarios/Etapas.txt',sourceFile='Diccionarios/Etapas.txt.1')
     #cleanF(targetFile='Diccionarios/Leyes.txt',sourceFile='Diccionarios/Leyes.txt.1')
     #cleanF(targetFile='Diccionarios/Seccionales.txt',sourceFile='Diccionarios/Seccionales.txt.1')
+    #secuestrosDepartamentos()
     pass

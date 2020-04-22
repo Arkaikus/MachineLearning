@@ -4,3 +4,5 @@ jupyterlab
 matplotlib
 pandas
 sklearn
+geopandas
+descartes
