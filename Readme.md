@@ -2,8 +2,8 @@
 
 ## Objetivos
 
-- Tratamiento de datos de Victimas/Indiciados de la Fiscalia en formato CSV
-- Encontrar información mediante kmeans/redes neuronales/rn convolucionales
+- Tratamiento de datos de Secuestros/Desapariciones de la Fiscalia en formato CSV
+- Encontrar información mediante kmeans o redes neuronales o rn convolucionales
 - Datos importantes: #Secuestros, #Desapariciones forzadas /por año /por departamento /# de condenados /denuncias
 
 ## Ideas
@@ -11,7 +11,6 @@
 - Estudio de los 5 departamentos con más secuestros y desapariciones
 - Correlacionar secuestros y desapariciones
 - Correlacionar secuestros y desapariciones con acuerdos de paz (datos: antes, durante, y después)
-
 - Entrenar un modelo para determinar si un caso de secuestro terminó en condena **[HECHO]**
 
 
@@ -26,19 +25,7 @@
 
 ### Filtrar Datos
 
-```python
-import pandas as pd
-
-df = pd.read_csv('victimas.csv')
-# Se separan los registros cuyo delito contiene SECUESTRO
-dfSecuestros = df[df['DELITO'].str.contains(pat="SECUESTRO")]
-# Se guardan los registros en el archivo ConteoVictimasSecuestros.csv
-dfSecuestros.to_csv('./ConteoVictimasSecuestros.csv',index=False)
-# Se separan los registros cuyo delito contiene DESAPARICION
-dfDesapariciones = df[df['DELITO'].str.contains(pat="DESAPARICION")]
-# Se guardan los registros en el archivo ConteoVictimasDesapariciones.csv
-dfDesapariciones.to_csv('./Desapariciones.csv',index=False)
-```
+Revisar utils.py
 
 ## Referencias
 
