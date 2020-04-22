@@ -1,9 +1,16 @@
 # Paper Secuestros
 
+## Archivos
+
+- ConteoVictimas(.*).csv: Datos filtrados de los datos abiertos de la fiscalía
+- DataSet(.*): Datos con los que se entrena y prueban los modelos en los notebooks
+- Analisis de Datos - Secuestros.ipynb : Clasificación de casos de secuestros por condena en colombia 
+- Analisis de Datos - Tendencias (.*).ipynb : Regresión lineal con redes neuronales
+
 ## Objetivos
 
-- Tratamiento de datos de Secuestros/Desapariciones de la Fiscalia en formato CSV
-- Encontrar información mediante kmeans o redes neuronales o rn convolucionales
+- Tratamiento de datos de Victimas/Indiciados de la Fiscalia en formato CSV **[HECHO]**
+- Encontrar información mediante kmeans/redes neuronales/rn convolucionales **[NN Regresión]**
 - Datos importantes: #Secuestros, #Desapariciones forzadas /por año /por departamento /# de condenados /denuncias
 
 ## Ideas
@@ -13,6 +20,10 @@
 - Correlacionar secuestros y desapariciones con acuerdos de paz (datos: antes, durante, y después)
 - Entrenar un modelo para determinar si un caso de secuestro terminó en condena **[HECHO]**
 
+## Tareas
+
+- Estadisticas, mapa de calor departamentos, top departamentos en número de secuestros
+- Revisar Paper Hurtos y reproducir gráficas
 
 ## Tecnologías
 
