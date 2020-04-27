@@ -24,10 +24,13 @@
 
 - Estadisticas, mapa de calor departamentos, top departamentos en número de secuestros
 - Revisar Paper Hurtos y reproducir gráficas
+- comparar con linea de regresión polyfit
+- comparar con svm
+
 
 ## Tecnologías
 
-- Python + Tensorflow/NumPy/Pandas/Matplotlib/JupyterLab/sklearn/GeoPandas/Descartes
+- Python + Tensorflow/NumPy/Pandas/Matplotlib/JupyterLab/sklearn/GeoPandas/Descartes/Seaborn
 
 ## Datos de la Fiscalía
 

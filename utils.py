@@ -121,17 +121,29 @@ def agruparVictimasAnios(aniosEntrada=5, aniosSalida=1, dataSet = "DataSetSecues
 
 def secuestrosDepartamentos():
     df= pd.read_csv('ConteoVictimasSecuestros.csv')
-    df = df[df.DEPARTAMENTO != 'POR ESTABLECER']
-    df['DEPARTAMENTO'] = df['DEPARTAMENTO'].apply(lambda x: str(x).upper())
-    df = df[['DEPARTAMENTO','TOTAL_VICTIMAS']].groupby('DEPARTAMENTO')['TOTAL_VICTIMAS'].sum()
-    df.to_csv('SecuestrosPorDepartamentos.csv')
     
+    with open('./Diccionarios/Departamentos.txt.1') as f:
+        for depto in f:
+            #Seleccionar registros con el departamento y solo las columnas ANIO_HECHO y TOTAL_VICTIMAS
+            dfDepto = dfSecuestros[dfSecuestros.DEPARTAMENTO == depto.rstrip()][['ANIO_HECHO','TOTAL_VICTIMAS']]
+            dfDepto = dfDepto.groupby('ANIO_HECHO')['TOTAL_VICTIMAS'].sum()
+            dfDepto.to_csv('victimas{}.csv'.format(depto.rstrip()))
+
+def victimasPorAnio():
+    df = pd.read_csv('ConteoVictimasSecuestros.csv')
+    df = df.dropna(subset=['ANIO_HECHO'])
+    df = df[df.ANIO_HECHO != 'SIN REGISTRO'][['ANIO_HECHO','TOTAL_VICTIMAS']]
+    df = df.groupby('ANIO_HECHO')['TOTAL_VICTIMAS'].sum()
+    df.to_csv('Datasets/victimasPorAño.csv')
+        
 if __name__ == '__main__':
     #limpiarCategorias()
     #limpiarCategorias(archivo="ConteoVictimasDesapariciones.csv",archivoSalida="DataSetDesapariciones.csv")    
-    #agruparVictimasAnios(aniosEntrada=5, aniosSalida=1, dataSet='DataSetDesapariciones.csv')
+    agruparVictimasAnios(aniosEntrada=3, aniosSalida=1, dataSet='Datasets/DataSetDesapariciones.csv')
     #cleanF(targetFile='Diccionarios/Etapas.txt',sourceFile='Diccionarios/Etapas.txt.1')
     #cleanF(targetFile='Diccionarios/Leyes.txt',sourceFile='Diccionarios/Leyes.txt.1')
     #cleanF(targetFile='Diccionarios/Seccionales.txt',sourceFile='Diccionarios/Seccionales.txt.1')
     #secuestrosDepartamentos()
+    #victimasPorAnio()
+    #agruparVictimasAnios()
     pass
