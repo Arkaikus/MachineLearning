@@ -3,3 +3,4 @@ venv/
 __pycache__/
 victimas.csv
 victimas*.csv
+Modelos/

@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import json
+import random
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
@@ -15,14 +16,14 @@ from sklearn.metrics import mean_squared_error
 from sklearn import svm
 
 # A utility method to create a tf.data dataset from a Pandas Dataframe
-def df_to_dataset(X,y, shuffle=True, batch_size=32):
+def df_to_dataset(X,y, shuffle=False, batch_size=32):
     ds = tf.data.Dataset.from_tensor_slices((dict(X), y))
     if shuffle:
         ds = ds.shuffle(buffer_size=len(X))
     ds = ds.batch(batch_size)
     return ds
 
-def train_test_ds(X,y, test_size=0.3, batch_size=4, random_state=1):
+def train_test_ds(X,y, test_size=0.3, batch_size=5, random_state=1):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state = random_state, shuffle=False)
     train_ds = df_to_dataset(X_train,y_train, batch_size=batch_size)
     test_ds = df_to_dataset(X_test,y_test, shuffle=False, batch_size=batch_size)
@@ -32,6 +33,35 @@ def train_test_ds(X,y, test_size=0.3, batch_size=4, random_state=1):
 def rmse(y_train,y_pred):
     return np.sqrt(mean_squared_error(y_train,y_pred))
 
+def save_model(model,name, params={}):
+    # serialize model to JSON
+    model_json = model.to_json()
+    with open("Modelos/{}.json".format(name), "w") as json_file:
+        json_file.write(model_json)
+    
+    if params:
+        with open("Modelos/{}_params.json".format(name), "w") as params_file:
+            params_file.write(json.dumps(params))
+
+    # serialize weights to HDF5
+    model.save_weights("Modelos/{}.h5".format(name))
+    print("Saved model to disk")
+
+def load_model():
+    # load json and create model
+    json_file = open('model.json', 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights("model.h5")
+    print("Loaded model from disk")
+
+    # evaluate loaded model on test data
+    loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    score = loaded_model.evaluate(X, Y, verbose=0)
+    print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
+    
 class ModeloSecuestros:
     def __init__(self, 
                  csv="", 
@@ -94,7 +124,7 @@ class ModeloSecuestros:
     def get_y_test(self):
         return self.y_test 
     
-    def get_feature_model(self):
+    def get_feature_model(self, epochs = 20, shuffle=False, metrics = ['mean_squared_error']):
         feature_columns = []
         for header in self.inputs:
             feature_columns.append(feature_column.numeric_column(header))
@@ -108,10 +138,10 @@ class ModeloSecuestros:
         self.feature_model.compile(
             optimizer= 'adam',
             loss=losses.mean_squared_error,
-            metrics=['mean_squared_error']
+            metrics=metrics
         )
         
-        self.feature_model.fit(self.train_ds,epochs=20, verbose=0, shuffle=False)
+        self.feature_model.fit(self.train_ds,epochs=epochs, verbose=0, shuffle=shuffle)
         self.feature_train_prediction = self.feature_model.predict(self.train_ds)
         self.feature_prediction = self.feature_model.predict(self.test_ds)
         self.feature_trained = True
@@ -120,24 +150,6 @@ class ModeloSecuestros:
     def get_rmse_feature(self):
         if self.feature_trained:
             return rmse(self.y_train,self.feature_train_prediction),rmse(self.y_test,self.feature_prediction)
-        else:
-            return 'Modelo sin inicializar'
-        
-    def get_feature_backtrack(self):
-        if self.feature_trained:
-            start = len(self.inputs)
-            y_values = list(self.y_values[:start])
-            train_prediction_length=len(self.feature_train_prediction)
-            train_decode = list(self.feature_train_prediction.reshape((train_prediction_length,)))
-            test_prediction_length =len(self.feature_prediction)
-            test_decode = list(self.feature_prediction.reshape((test_prediction_length,)))
-            
-            y_values.append(train_decode)
-            y_values.append(test_decode)
-            plt.plot(self.X_values, y_values, 'ro')
-            ### Eje x : y_test ##### Eje y: feature_prediction
-            plt.axis([min(self.y_test), max(self.y_test), min(self.feature_prediction),max(self.feature_prediction)])
-            plt.show()
         else:
             return 'Modelo sin inicializar'
     
@@ -167,20 +179,20 @@ class ModeloSecuestros:
         else:
             return 'Modelo sin inicializar'
     
-    def get_sequential_model(self):
+    def get_sequential_model(self, input_dim=5,epochs = 20,shuffle=False, metrics=['mean_squared_error']):
         self.sequential_model = tf.keras.Sequential()
-        self.sequential_model.add(layers.Dense(200, input_dim=5, activation= "relu"))
-        self.sequential_model.add(layers.Dense(100, activation= "relu"))
-        self.sequential_model.add(layers.Dense(10, activation= "relu"))
+        self.sequential_model.add(layers.Dense(np.random.randint(200,400), input_dim=input_dim, activation= "relu"))
+        self.sequential_model.add(layers.Dense(np.random.randint(100,200), activation= "relu"))
+        self.sequential_model.add(layers.Dense(np.random.randint(5,10), activation= "relu"))
         self.sequential_model.add(layers.Dense(1))
-        self.sequential_model.compile(loss=losses.mean_squared_error , optimizer="adam", metrics=["mean_squared_error"])
-        self.sequential_model.fit(x=self.X_train, y=self.y_train, epochs=20, verbose=0, shuffle=False)
+        self.sequential_model.compile(loss=losses.mean_squared_error , optimizer="adam", metrics=metrics)
+        self.sequential_model.fit(x=self.X_train, y=self.y_train, epochs=epochs, verbose=0, shuffle=shuffle)
         self.sequential_train_prediction = self.sequential_model.predict(self.X_train)
         self.sequential_prediction = self.sequential_model.predict(self.X_test)
         self.sequential_trained = True
         
         return self.sequential_model
-    
+   
     def get_rmse_sequential(self):
         if self.sequential_trained:
             #train,test
@@ -267,15 +279,60 @@ class ModeloSecuestros:
             return rmse(self.y_train,self.clf_train_prediction),rmse(self.y_test,self.clf_prediction)
         else:
             return 'Modelo sin inicializar'
+
+        
+def run_feature(modelo):
+    saved = 0
+    notsaved = 0
+    for i in range(100):
+        print("###########################################################")
+        print("Modelo:",i)
+        epochs = np.random.randint(20,60)
+        print("Epochs:",epochs)
+        feature = modelo.get_feature_model(epochs=epochs)
+        rmse_train, rmse_test = modelo.get_rmse_feature()
+        print('RMSE train:',rmse_train,'RMSE test',rmse_test)
+        if rmse_train < 550 and rmse_test <= 850:
+            save_model(feature,"feature_{:.0f}_{:.0f}".format(rmse_train,rmse_test))
+            saved+=1
+        else:
+            notsaved+=1
+            print('Not Saved')
+    
+    print("###########################################################")
+    print("Saved: {} %".format(saved))
+    print("Not Saved: {} %".format(notsaved))
+    
+def run_deep(modelo):
+    saved = 0
+    notsaved = 0
+    for i in range(100):
+        print("###########################################################")
+        print("Modelo:",i)
+        epochs = np.random.randint(20,60)
+        print("Epochs:",epochs)
+        deep = modelo.get_sequential_model(epochs=epochs)
+        rmse_train, rmse_test = modelo.get_rmse_sequential()
+        print('RMSE train:',rmse_train,'RMSE test',rmse_test)
+        if rmse_train < 550 and rmse_test <= 850:
+            save_model(deep,"deep_{:.0f}_{:.0f}".format(rmse_train,rmse_test))
+            saved+=1
+        else:
+            notsaved+=1
+            print('Not Saved')
+    
+    print("###########################################################")
+    print("Saved: {} %".format(saved))
+    print("Not Saved: {} %".format(notsaved))
+    
     
 if __name__ == '__main__':
-    datos_csv = 'Datasets/DataSetVictimasAnios3x1.csv'
-    modelo = ModeloSecuestros(csv=datos_csv, random_state = 0,inputs=['Input_{}'.format(i) for i in range(3)])
+    datos_csv = 'Datasets/DataSetVictimasAnios5x1.csv'
+    modelo = ModeloSecuestros(csv=datos_csv, random_state = 0)
     
+    run_deep(modelo)
+    #run_feature(modelo)
     
-    print(modelo.get_feature_model().summary())
-    print('Feature RMSE',modelo.get_rmse_feature())
-    modelo.get_feature_scatter()
     #print('###########################################')
     #print(modelo.get_sequential_model().summary())
     #print('Manual MSE',modelo.get_rmse_sequential())
