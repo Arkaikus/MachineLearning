@@ -26,11 +26,13 @@
 - Revisar Paper Hurtos y reproducir gráficas
 - comparar con linea de regresión polyfit
 - comparar con svm
+- predecir a 10 años nn+svm
+
 
 
 ## Tecnologías
 
-- Python + Tensorflow/NumPy/Pandas/Matplotlib/JupyterLab/sklearn/GeoPandas/Descartes/Seaborn
+- Python + Tensorflow/NumPy/Pandas/Matplotlib/JupyterLab/sklearn/GeoPandas/Descartes/Seaborn/joblib
 
 ## Datos de la Fiscalía
 
