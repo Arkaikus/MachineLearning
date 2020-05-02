@@ -1,0 +1,1 @@
+{"inputs": "keras.layers.DenseFeatures", "hidden_layers": [193, 186, 266, 121], "epochs": 38, "activation": "relu", "solver": "keras.optimizers.Adam"}

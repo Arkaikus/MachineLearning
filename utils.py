@@ -119,7 +119,7 @@ def agruparVictimasAnios(aniosEntrada=5, aniosSalida=1, dataSet = "DataSetSecues
     the_dataframe.to_csv('{}{}x{}.csv'.format(dataSet.rstrip('.csv'),aniosEntrada,aniosSalida),index=False)
 
 
-def secuestrosDepartamentos():
+def archivosSecustrosPorDepartamentos():
     df= pd.read_csv('ConteoVictimasSecuestros.csv')
     
     with open('./Diccionarios/Departamentos.txt.1') as f:
@@ -129,21 +129,30 @@ def secuestrosDepartamentos():
             dfDepto = dfDepto.groupby('ANIO_HECHO')['TOTAL_VICTIMAS'].sum()
             dfDepto.to_csv('victimas{}.csv'.format(depto.rstrip()))
 
-def victimasPorAnio():
-    df = pd.read_csv('ConteoVictimasSecuestros.csv')
+def victimasPorAnio(archivo="ConteoVictimasSecuestros.csv", salida="Datasets/victimasPorAño.csv"):
+    df = pd.read_csv(archivo)
     df = df.dropna(subset=['ANIO_HECHO'])
-    df = df[df.ANIO_HECHO != 'SIN REGISTRO'][['ANIO_HECHO','TOTAL_VICTIMAS']]
+    df = df[df.ANIO_HECHO != 'SIN REGISTRO'][df.ANIO_HECHO!='1968'][['ANIO_HECHO','TOTAL_VICTIMAS']]
     df = df.groupby('ANIO_HECHO')['TOTAL_VICTIMAS'].sum()
-    df.to_csv('Datasets/victimasPorAño.csv')
-        
+    df.to_csv(salida)
+
+def victimasDesaparicionesPorDepartamento(archivo="ConteoVictimasSecuestros.csv", salida="Datasets/SecuestrosPorDepartamento.csv"):
+    df = pd.read_csv(archivo)
+    df = df.dropna(subset=['DEPARTAMENTO'])
+    df = df[df.ANIO_HECHO != 'SIN REGISTRO'][['DEPARTAMENTO','TOTAL_VICTIMAS']]
+    df['DEPARTAMENTO']=df['DEPARTAMENTO'].apply(lambda x: str(x).upper())
+    df = df.groupby('DEPARTAMENTO')['TOTAL_VICTIMAS'].sum()
+    df.to_csv(salida)
+
 if __name__ == '__main__':
     #limpiarCategorias()
     #limpiarCategorias(archivo="ConteoVictimasDesapariciones.csv",archivoSalida="DataSetDesapariciones.csv")    
-    agruparVictimasAnios(aniosEntrada=3, aniosSalida=1, dataSet='Datasets/DataSetDesapariciones.csv')
+    #agruparVictimasAnios(aniosEntrada=3, aniosSalida=1, dataSet='Datasets/DataSetDesapariciones.csv')
     #cleanF(targetFile='Diccionarios/Etapas.txt',sourceFile='Diccionarios/Etapas.txt.1')
     #cleanF(targetFile='Diccionarios/Leyes.txt',sourceFile='Diccionarios/Leyes.txt.1')
     #cleanF(targetFile='Diccionarios/Seccionales.txt',sourceFile='Diccionarios/Seccionales.txt.1')
     #secuestrosDepartamentos()
-    #victimasPorAnio()
+    #victimasPorAnio("ConteoVictimasDesapariciones.csv",'Datasets/victimasDesaparicionesPorAño.csv')
+    #victimasDesaparicionesPorDepartamento(archivo="ConteoVictimasDesapariciones.csv", salida="Datasets/DesaparicionesPorDepartamento.csv")
     #agruparVictimasAnios()
     pass
