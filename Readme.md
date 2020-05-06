@@ -10,23 +10,20 @@
 ## Objetivos
 
 - Tratamiento de datos de Victimas/Indiciados de la Fiscalia en formato CSV **[HECHO]**
-- Encontrar información mediante kmeans/redes neuronales/rn convolucionales **[NN Regresión]**
-- Datos importantes: #Secuestros, #Desapariciones forzadas /por año /por departamento /# de condenados /denuncias
-
-## Ideas
-
-- Estudio de los 5 departamentos con más secuestros y desapariciones
-- Correlacionar secuestros y desapariciones
-- Correlacionar secuestros y desapariciones con acuerdos de paz (datos: antes, durante, y después)
-- Entrenar un modelo para determinar si un caso de secuestro terminó en condena **[HECHO]**
+- Encontrar información mediante svm/redes neuronales **[NN Regresión]** **[HECHO]**
+- Datos importantes: Victimas de secuestros por años y departamentos
 
 ## Tareas
 
-- Estadisticas, mapa de calor departamentos, top departamentos en número de secuestros
-- Revisar Paper Hurtos y reproducir gráficas
-- comparar con linea de regresión polyfit
-- comparar con svm
-- predecir a 10 años nn+svm
+- Top departamentos con más secuestros y desapariciones **[HECHO]**
+- Correlacionar secuestros y desapariciones **[DESCARTADO]**
+- Correlacionar secuestros y desapariciones con acuerdos de paz (datos: antes, durante, y después) **[DESCARTADO]**
+- Entrenar un modelo para determinar si un caso de secuestro terminó en condena **[HECHO]**
+- Estadisticas, mapa de calor departamentos, top departamentos en número de secuestros **[HECHO]**
+- Revisar Paper Hurtos y reproducir gráficas **[HECHO]**
+- Linea de regresión usando seaborn.regplot **[HECHO]** 
+- Comparar svm y nn **[HECHO]**
+- predecir a 10 años nn+svm **[HECHO]**
 
 ## Tecnologías
 
