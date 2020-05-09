@@ -153,7 +153,6 @@ class Framework:
         
         y_values = self.get_predictions_flat(train,test)
         fig, ax = plt.subplots(figsize=figsize)
-        ax.set_title(title,fontsize=title_fontsize)
         ax.plot(self.y_values, self.y_values, 'k-')
         ax.plot(self.y_values, y_values, 'D'+color,
                 markerfacecolor='w',
@@ -161,7 +160,8 @@ class Framework:
                 markeredgecolor=edgecolor)
         ax.set_xlabel('Valores Esperados', fontsize=label_fontsize)
         ax.set_ylabel('Predicciones', fontsize=label_fontsize)
-        plt.setp(ax.get_xticklabels(), fontsize=ticks_fontsize)
+        ax.set_title(title,fontsize=title_fontsize)
+        plt.setp(ax.get_xticklabels(), rotation=30,  horizontalalignment='right', fontsize=ticks_fontsize)
         plt.setp(ax.get_yticklabels(), fontsize=ticks_fontsize)
         
         plt.tight_layout()
@@ -224,7 +224,7 @@ class Framework:
     
     def get_feature_scatter(self):
         if self.feature_trained:
-            fig = self.get_scatter(self.feature_train_prediction,self.feature_test_prediction, title="Dispersión DenseFeatures")
+            fig = self.get_scatter(self.feature_train_prediction,self.feature_test_prediction, title="Dispersión Red Neuronal Keras")
             fig.savefig("{}/feature_scatter.png".format(self.save_dir), dpi=300)
         else:
             return 'Modelo sin inicializar'
@@ -283,8 +283,8 @@ class Framework:
                                ticks_fontsize = 18):
         if self.sequential_trained:
             self.sequential_scatter_fig = self.get_scatter(self.sequential_train_prediction,self.sequential_test_prediction, 
-                                                           title="Dispersión DenseLayers",figsize=figsize,color="b",
-                                                          title_fontsize=ticks_fontsize,
+                                                           title="Dispersión Red Neuronal Keras",figsize=figsize,color="b",
+                                                          title_fontsize=title_fontsize,
                                                           label_fontsize=label_fontsize,
                                                           ticks_fontsize=ticks_fontsize)
             self.sequential_scatter_fig.savefig("{}/sequential_scatter.png".format(self.save_dir), dpi=300)
@@ -320,9 +320,9 @@ class Framework:
                         label_fontsize = 18,
                         ticks_fontsize = 18):
         if self.svm_trained:
-            self.svm_scatter_fig = self.get_scatter(self.svm_train_prediction,self.svm_test_prediction, title="Dispersión SVM",
+            self.svm_scatter_fig = self.get_scatter(self.svm_train_prediction,self.svm_test_prediction, title="Dispersión Máquina de Soporte Vectorial",
                                                     figsize=figsize, color="r", edgecolor=(1,0,0,1),
-                                                    title_fontsize=ticks_fontsize,
+                                                    title_fontsize=title_fontsize,
                                                     label_fontsize=label_fontsize,
                                                     ticks_fontsize=ticks_fontsize)
             
@@ -378,9 +378,9 @@ class Framework:
                         label_fontsize = 18,
                         ticks_fontsize = 18):
         if self.mlp_trained:
-            self.mlp_scatter_fig = self.get_scatter(self.mlp_train_prediction,self.mlp_test_prediction, title="Dispersión MLPRegressor",
+            self.mlp_scatter_fig = self.get_scatter(self.mlp_train_prediction,self.mlp_test_prediction, title="Dispersión Red Neuronal MLPRegressor",
                                                     figsize=figsize, color="r", edgecolor=(0,1,0,1),
-                                                    title_fontsize=ticks_fontsize,
+                                                    title_fontsize=title_fontsize,
                                                     label_fontsize=label_fontsize,
                                                     ticks_fontsize=ticks_fontsize)
             self.mlp_scatter_fig.savefig("{}/mlp_scatter.png".format(self.save_dir), dpi=300)
@@ -458,12 +458,14 @@ class Framework:
                      plot_save_location,
                      x_label="",
                      y_label="",
-                     figsize=(30,30),
+                     figsize=(18,50),
                      dpi=120,
                      title_fontsize = 20,
                      label_fontsize = 16,
                      legend_fontsize = 16,
-                     ticks_fontsize = 14
+                     ticks_fontsize = 14,
+                     xticks_div = 3,
+                     yticks_div = 6
                     ):
         
         years = list(range(self.start_year,self.end_year+1))
@@ -483,48 +485,66 @@ class Framework:
         sequential_predictions = self.get_sequential_predictions()
         
         ## PLOT
-        xticks = np.arange(min(years), max(years)+2, 2)
-        fig, ax = plt.subplots(2,2, figsize=figsize)
+        #print("Max Year",max(years))
+        #step = (2020 - min(years))//xticks_div
+        #print("X_step",step)
+        #step = step if step%2 == 0 else step-1
+        xticks = [i for i in range(min(years),max(years),5)]#np.arange(min(years), max(years)+step, step)
+        xticks += [max(years)]
+        xticks = np.unique(xticks)
+        max_svm = max(svm_predictions)
+        max_mlp = max(mlp_predictions)
+        max_seq = max(sequential_predictions)
+        max_y = max(max_svm,max_mlp,max_seq)
+        
+        min_svm = min(svm_predictions)
+        min_mlp = min(mlp_predictions)
+        min_seq = min(sequential_predictions)
+        min_y = min(min_svm,min_mlp,min_seq)
+        
+        step = (max_y-min_y)//yticks_div
+        #print("Y_step",step)
+        yticks = np.arange(min_y, max_y, step)
+        
+        fig, ax = plt.subplots(4,1, figsize=figsize)
         #ax[2,1].delaxes()
         
-        
-        ax[0,0].set_title('Datos Originales', fontsize=title_fontsize)
-        for i in range(2):
-            for j in range(2):
-                ax[i,j].plot(years, year_values, 'k--', label="Data")
-                sns.regplot(x=years, y=year_values, ax=ax[i,j], label="Regression", scatter=False, ci=0)
+        ax[0].set_title('Datos Originales', fontsize=title_fontsize)
+        for i in range(4):
+            ax[i].plot(years, year_values, 'Dk--', label="Datos", markerfacecolor='w',markeredgewidth=1.5)
+            sns.regplot(x=years, y=year_values, ax=ax[i], label="Regresión", scatter=False, ci=0)
         
         
-        ax[0,1].set_title('Predicción SVM', fontsize=title_fontsize)
-        ax[0,1].plot(years4models, svm_predictions, 'Dr-', label = "SVM", 
+        ax[1].set_title('Máquina de Soporte Vectorial', fontsize=title_fontsize)
+        ax[1].plot(years4models, svm_predictions, 'Dr-', label = "SVM", 
                      markerfacecolor='w',
                      markeredgewidth=1.5, 
                      markeredgecolor=(1, 0, 0, 1))
         
         
 
-        ax[1,0].set_title('Predicción MLPRegressor', fontsize=title_fontsize)
-        ax[1,0].plot(years4models, mlp_predictions, 'Dg-', label = "MLPRegressor",
+        ax[2].set_title('Red Neuronal MLPRegressor', fontsize=title_fontsize)
+        ax[2].plot(years4models, mlp_predictions, 'Dg-', label = "MLPRegressor",
                      markerfacecolor='w',
                      markeredgewidth=1.5, 
                      markeredgecolor=(0, 1, 0, 1))
         
-        ax[1,1].set_title('Predicción DenseLayers', fontsize=title_fontsize)
-        ax[1,1].plot(years4models, sequential_predictions, 'Db-', label = 'DenseLayers',
+        ax[3].set_title('Red Neuronal Keras', fontsize=title_fontsize)
+        ax[3].plot(years4models, sequential_predictions, 'Db-', label = 'Keras',
                      markerfacecolor='w',
                      markeredgewidth=1.5, 
                      markeredgecolor=(0, 0, 1, 1))
         
         #fig.delaxes(ax[2,1])
         
-        for i in range(2):
-            for j in range(2):
-                ax[i,j].set_xticks(xticks)
-                ax[i,j].legend(loc='upper left',fontsize=legend_fontsize)
-                ax[i,j].set_xlabel(x_label,fontsize=label_fontsize)
-                ax[i,j].set_ylabel(y_label,fontsize=label_fontsize)
-                plt.setp(ax[i,j].get_xticklabels(), rotation=30, horizontalalignment='right', fontsize=ticks_fontsize)
-                plt.setp(ax[i,j].get_yticklabels(), fontsize=ticks_fontsize)
+        for i in range(4):
+            ax[i].set_xticks(xticks)
+            ax[i].set_yticks(yticks)
+            ax[i].legend(loc='upper left',fontsize=legend_fontsize)
+            ax[i].set_xlabel(x_label,fontsize=label_fontsize)
+            ax[i].set_ylabel(y_label,fontsize=label_fontsize)
+            plt.setp(ax[i].get_xticklabels(), rotation=30, horizontalalignment='right', fontsize=ticks_fontsize)
+            plt.setp(ax[i].get_yticklabels(), fontsize=ticks_fontsize)
         
         plt.tight_layout()
         plt.show()
@@ -607,38 +627,34 @@ class Framework:
         xticks = np.arange(min(years), max(years)+step, step)
         
         step = (max_y-min_y)//yticks_div
-        
         yticks = np.arange(min_y, max_y, step)
         
         fig, ax = plt.subplots(3,1,figsize=figsize)
         
-        ax[0].set_title("Predicción SVM al Año {}".format(end_year), fontsize=title_fontsize)
+        ax[0].set_title("Predicción Máquina de Soporte Vectorial al Año {}".format(end_year), fontsize=title_fontsize)
         ax[0].plot(years[self.len_inputs-1:], svm_future[self.len_inputs-1:], 'Dr-', label = "SVM",
                    markerfacecolor='w',
                    markeredgewidth=1.5, 
                    markeredgecolor=(1, 0, 0, 1))
-        ax[0].plot(years[:self.len_inputs], svm_future[:self.len_inputs], 'Dk--', label = "Data", markerfacecolor='w')
+        #ax[0].plot(years[:self.len_inputs], svm_future[:self.len_inputs], 'Dk--', label = "Datos", markerfacecolor='w')
         
-        ax[1].set_title("Predicción MLPRegressor al Año {}".format(end_year), fontsize=title_fontsize)
+        ax[1].set_title("Predicción Red Neuronal MLPRegressor al Año {}".format(end_year), fontsize=title_fontsize)
         ax[1].plot(years[self.len_inputs-1:], mlp_future[self.len_inputs-1:], 'Dg-', label = "MLPRegressor",
                    markerfacecolor='w',
                    markeredgewidth=1.5, 
                    markeredgecolor=(0, 1, 0, 1))    
-        ax[1].plot(years[:self.len_inputs], mlp_future[:self.len_inputs], 'Dk--', label = "Data", markerfacecolor='w')
+        #ax[1].plot(years[:self.len_inputs], mlp_future[:self.len_inputs], 'Dk--', label = "Datos", markerfacecolor='w')
         #ax[2].plot(years, feature_future, 'b-',label = 'DenseFeatures')
         
-        ax[2].set_title("Predicción DenseLayers al Año {}".format(end_year), fontsize=title_fontsize)
-        ax[2].plot(years[self.len_inputs-1:], sequential_future[self.len_inputs-1:], 'Db-',label = 'DenseLayers',
+        ax[2].set_title("Predicción Red Neuronal Keras al Año {}".format(end_year), fontsize=title_fontsize)
+        ax[2].plot(years[self.len_inputs-1:], sequential_future[self.len_inputs-1:], 'Db-',label = 'Keras',
                    markerfacecolor='w',
                    markeredgewidth=1.5, 
                    markeredgecolor=(0, 0, 1, 1))
-        ax[2].plot(years[:self.len_inputs], sequential_future[:self.len_inputs], 'Dk--', label = "Data", markerfacecolor='w')
+        #ax[2].plot(years[:self.len_inputs], sequential_future[:self.len_inputs], 'Dk--', label = "Datos", markerfacecolor='w')
         
         for i in range(3):
-            ax[i].plot(data_years, data_values, 'Dk--',
-                   markerfacecolor='w',
-                   markeredgewidth=1.5, 
-                   markeredgecolor=(0, 0, 0, 1))
+            ax[i].plot(data_years, data_values, 'Dk--', label="Datos",markerfacecolor='w',markeredgewidth=1.5)
             ax[i].set_xticks(xticks)
             ax[i].set_yticks(yticks)
             ax[i].legend(loc='upper left',fontsize=legend_fontsize)
