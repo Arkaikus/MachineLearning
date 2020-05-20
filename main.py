@@ -19,7 +19,9 @@ from sklearn.metrics import mean_squared_error
 from sklearn.neural_network import MLPRegressor
 #from sklearn.externals import joblib
 from sklearn import svm
-
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+    
 from signal import signal, SIGINT
 from sys import exit
 
@@ -300,8 +302,9 @@ class Framework:
     #########################################################################################################################
     #### SVM
     #########################################################################################################################
-    def get_svm_model(self):        
-        self.svm_model = svm.SVC()
+    def get_svm_model(self):
+        #self.svm_model = make_pipeline(StandardScaler(), svm.LinearSVR(random_state=0, tol=1e-5))
+        self.svm_model = svm.SVR(kernel="linear")
         self.svm_model.fit(self.X_train,self.y_train)
         self.do_svm_predictions()
         self.svm_trained =True
@@ -515,7 +518,7 @@ class Framework:
             sns.regplot(x=years, y=year_values, ax=ax[i], label="Regresión", scatter=False, ci=0)
         
         
-        ax[1].set_title('Máquina de Soporte Vectorial', fontsize=title_fontsize)
+        ax[1].set_title('Máquina de Soporte Vectorial (SVR)', fontsize=title_fontsize)
         ax[1].plot(years4models, svm_predictions, 'Dr-', label = "SVM", 
                      markerfacecolor='w',
                      markeredgewidth=1.5, 
@@ -619,15 +622,16 @@ class Framework:
         min_mlp = min(mlp_future)
         #min_feat = min(feature_future)
         min_seq = min(sequential_future)
+        min_data = min(data_values)
         min_y = min(min_svm,min_mlp,
                     #min_feat,
-                    min_seq)
+                    min_seq, min_data)
         
         step = (end_year - min(years))//xticks_div
         xticks = np.arange(min(years), max(years)+step, step)
         
         step = (max_y-min_y)//yticks_div
-        yticks = np.arange(min_y, max_y, step)
+        yticks = np.arange(min_y, max_y+step, step)
         
         fig, ax = plt.subplots(3,1,figsize=figsize)
         
@@ -822,9 +826,40 @@ if __name__ == '__main__':
     sequential_model = "sequential_149_555"
 
     fw.get_svm_model()
-    fw.load_mlp_model(mlp_model)
-    fw.load_sequential_model(sequential_model)
+    #fw.load_mlp_model(mlp_model)
+    #fw.load_sequential_model(sequential_model)
+    #_samples, n_features = df.shape
+    #ng = np.random.RandomState(1)
+    # = rng.randn(n_samples)
+    # = rng.randn(n_samples, n_features)
+    #egr = make_pipeline(StandardScaler(), svm.SVR(C=1.0, epsilon=0.2))
 
-    print("SVM RMSE:",fw.get_svm_rmse())
-    print("MLP RMSE:",fw.get_mlp_rmse())
-    print("Sequential RMSE:",fw.get_sequential_rmse())
+    regr = svm.SVR(kernel="linear")
+    #regr = make_pipeline(StandardScaler(), svm.LinearSVR(random_state=1, tol=1e-5))
+    regr.fit(fw.X_train, fw.y_train)
+    
+    #svm_model = svm.SVC()
+    #svm_model.fit(fw.X_train,fw.y_train)
+    
+    #print("SVM RMSE:",fw.get_svm_rmse())
+    
+    #print("SVM TRAIN Y-VALUES PREDICTED", svm_model.predict(fw.X_train))
+    regr_train_predict = regr.predict(fw.X_train)
+    
+    print("SVM TRAIN Y-VALUES PREDICTED", regr_train_predict)
+    
+    print("SVM TRAIN Y-VALUES DATA", fw.y_train)
+    
+    print("RMSE TRAIN", rmse(fw.y_train, regr_train_predict))
+    
+    regr_test_predict = regr.predict(fw.X_test)
+    
+    print("SVM TEST Y-VALUES PREDICTED", regr_test_predict)
+    
+    print("SVM TEST Y-VALUES DATA", fw.y_test)
+    
+    print("RMSE TEST", rmse(fw.y_test, regr_test_predict))
+    
+    
+    #print("MLP RMSE:",fw.get_mlp_rmse())
+    #print("Sequential RMSE:",fw.get_sequential_rmse())
