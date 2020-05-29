@@ -797,7 +797,7 @@ if __name__ == '__main__':
     signal(SIGINT, handler)
 
     print('Running. Press CTRL-C to exit.')
-    datos_csv = 'Datasets/DataSetVictimasAnios5x1.csv'
+    datos_csv = 'Secuestros/Datasets/DataSetVictimasAnios5x1.csv'
     df = pd.read_csv(datos_csv)
     fw = Framework(
         dataframe  = df,

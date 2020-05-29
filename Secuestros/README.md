@@ -1,4 +1,4 @@
-# Paper Secuestros
+# Modelo de Redes Neuronales para la predicción de victimas de secuestro en Colombia
 
 ## Archivos
 
