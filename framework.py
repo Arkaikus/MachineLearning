@@ -51,8 +51,8 @@ def rmse(y_train,y_pred):
 class Framework:
     def __init__(self, 
                  dataframe,
-                 start_year,
-                 end_year,
+                 start_year=1982,
+                 end_year=2020,
                  inputs=['Input_{}'.format(i) for i in range(5)],
                  target='Output_0',
                  test_size = 0.09,
@@ -457,7 +457,96 @@ class Framework:
         
         return ds_feature
     
-    def plot_compare(self, 
+    def plot_compare_nodes(self,
+                           plot_save_location,
+                           start_offset = 5,
+                           end_offset = 50,
+                           x_label="",
+                           y_label="",
+                           figsize=(18,50),
+                           dpi=120,
+                           title="Datos",
+                           title_fontsize = 20,
+                           label_fontsize = 16,
+                           legend_fontsize = 16,
+                           ticks_fontsize = 14,
+                           xticks_div = 3,
+                           yticks_div = 6):
+        
+        # Units between 0 and dataset X shape
+        len_values = sum(self.df.shape)
+        
+        if end_offset> len_values-1 or start_offset<5:
+            raise Exception('must: end_offset({})<={} and start_offset({})>=5'.format(end_offset,len_values,start_offset))
+        
+        # X axis values for predictions
+        x_values = list(range(len_values))
+        node_index = x_values[start_offset:end_offset]
+        
+        # X axis values for next nodes
+        next_nodes_index = x_values[start_offset:end_offset-1]
+        # Y axis values 
+        next_nodes_values = self.y_values[start_offset-self.len_inputs+1:end_offset-self.len_inputs+1];
+        
+        x_ticks = list(np.concatenate((self.X_values[0],self.y_values[:])))
+        x_ticks = list(map(lambda x: str(x), x_ticks))[start_offset:end_offset]
+    
+#         print('len_values',len_values)
+#         print('node_index',node_index,len(node_index))
+#         print('next_nodes_index',next_nodes_index,len(next_nodes_index))
+#         print('next_nodes_values',next_nodes_values,len(next_nodes_values))
+#         print('x_ticks',x_ticks,len(x_ticks))
+        
+        fig, ax = plt.subplots(figsize=figsize)
+        
+        ax.set_title(title, fontsize=title_fontsize)
+        ax.plot(next_nodes_index, next_nodes_values, 'Dk-', label = "Datos", 
+                     markerfacecolor='w',
+                     markeredgewidth=1.5, 
+                     markeredgecolor=(0, 0, 0, 1))
+        
+        if self.svm_trained:
+            svm_predictions = self.get_svm_predictions()
+            svm_predictions = svm_predictions[start_offset-self.len_inputs:end_offset]
+            ax.plot(node_index, svm_predictions, 'Dr-', label = "SVR", 
+                         markerfacecolor='w',
+                         markeredgewidth=1.5, 
+                         markeredgecolor=(1, 0, 0, 1))
+        
+        if self.mlp_trained:
+            mlp_predictions = self.get_mlp_predictions()
+            mlp_predictions = mlp_predictions[start_offset-self.len_inputs:end_offset]
+            ax.plot(node_index, mlp_predictions, 'Dg-', label = "MLPRegressor", 
+                         markerfacecolor='w',
+                         markeredgewidth=1.5, 
+                         markeredgecolor=(0, 1, 0, 1))
+            
+        if self.sequential_trained:
+            sequential_predictions = self.get_sequential_predictions()
+            sequential_predictions = sequential_predictions[start_offset-self.len_inputs:end_offset]
+            ax.plot(node_index, sequential_predictions, 'Db-', label = "DenseLayers", 
+                         markerfacecolor='w',
+                         markeredgewidth=1.5, 
+                         markeredgecolor=(0, 0, 1, 1))
+        #ax.set_xticks(xticks)
+        #ax.set_yticks(yticks)
+        ax.legend(loc='upper left',fontsize=legend_fontsize)
+        ax.set_xlabel(x_label,fontsize=label_fontsize)
+        ax.set_ylabel(y_label,fontsize=label_fontsize)
+        ax.set_xticks(node_index)
+        ax.set_xticklabels(x_ticks)
+        
+#         print('x_ticks',x_ticks, len(x_ticks))
+#         print('x_values',x_values, len(x_values))
+        plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right', fontsize=ticks_fontsize)
+        plt.setp(ax.get_yticklabels(), fontsize=ticks_fontsize)
+
+        plt.tight_layout()
+        
+        plt.show()
+        fig.savefig(plot_save_location, dpi=dpi)
+    
+    def plot_compare_years(self, 
                      plot_save_location,
                      x_label="",
                      y_label="",
@@ -673,7 +762,7 @@ class Framework:
             
 
 #########################################################################################################################
-#########################################################################################################################         
+#########################################################################################################################      
             
 def run(model, 
         model_type,
@@ -684,7 +773,8 @@ def run(model,
         epochs   = 20,
         shuffle  = True,
         hidden_layers = tuple(),
-        break_on_save = False):
+        break_on_save = False,
+        shuffle_layers = False):
     
     saved = 0
     notsaved = 0
@@ -698,7 +788,8 @@ def run(model,
         print("###########################################################")
         print("Modelo:",i)
         #epochs = np.random.randint(20,40)
-        #hidden_layers = descendant_layers()
+        if shuffle_layers:
+            hidden_layers = descendant_layers()
         get_model = getattr(model, 'get_{}_model'.format(model_type))
         the_model = get_model(hidden_layers=hidden_layers,epochs=epochs,shuffle=shuffle)
         
@@ -797,35 +888,39 @@ if __name__ == '__main__':
     signal(SIGINT, handler)
 
     print('Running. Press CTRL-C to exit.')
-    datos_csv = 'Secuestros/Datasets/DataSetVictimasAnios5x1.csv'
+    datos_csv = 'Sismos/Datasets/dataset1000.csv'
     df = pd.read_csv(datos_csv)
     fw = Framework(
-        dataframe  = df,
-        start_year = 1976,
-        end_year   = 2020,
-        inputs     = ['Input_{}'.format(i) for i in range(5)],
-        target     = 'Output_0',
-        save_dir   = "Modelos",
-        test_size  = 0.15,
-        #shuffleDataset = True
+        dataframe    = df,
+        inputs       = ['{}'.format(i) for i in range(5)],
+        target       = '5',
+        save_dir     = "Sismos/Modelos/",
+        test_size    = 0.3,
+        random_state = 0
     )
-    
     #run_mlp(fw, load=True, name="mlp_164_766", overtrain=True)
     
     #fw.load_mlp_model('mlp_164_766')
     #hidden_layers = (163,130,120,117)#tuple(fw.mlp_description["hidden_layers"])
-    hidden_layers = (5,200,150,100,50)
-    max_iter = 150 #fw.mlp_description["max_iter"]
-    #run(fw,'sequential',hidden_layers=hidden_layers, epochs=max_iter, shuffle=False, break_on_save = True)
+    #hidden_layers = (5,200,150,100,50)
+    # max_iter = 150 #fw.mlp_description["max_iter"]
+    run(fw,
+        'sequential', 
+        train_th=1,
+        test_th=1,
+        shuffle=False, 
+        break_on_save = True, 
+        shuffle_layers=True, 
+        inf=True)
     #run_mlp(fw, hidden_layers, max_iter)
     
     #run_mlp(fw, hidden_layers = hidden_layers, max_iter=max_iter)
     
     
-    mlp_model = "mlp_181_593"
-    sequential_model = "sequential_149_555"
+    # mlp_model = "mlp_181_593"
+    # sequential_model = "sequential_149_555"
 
-    fw.get_svm_model()
+    # fw.get_svm_model()
     #fw.load_mlp_model(mlp_model)
     #fw.load_sequential_model(sequential_model)
     #_samples, n_features = df.shape
@@ -834,9 +929,9 @@ if __name__ == '__main__':
     # = rng.randn(n_samples, n_features)
     #egr = make_pipeline(StandardScaler(), svm.SVR(C=1.0, epsilon=0.2))
 
-    regr = svm.SVR(kernel="linear")
+    # regr = svm.SVR(kernel="linear")
     #regr = make_pipeline(StandardScaler(), svm.LinearSVR(random_state=1, tol=1e-5))
-    regr.fit(fw.X_train, fw.y_train)
+    # regr.fit(fw.X_train, fw.y_train)
     
     #svm_model = svm.SVC()
     #svm_model.fit(fw.X_train,fw.y_train)
@@ -844,21 +939,21 @@ if __name__ == '__main__':
     #print("SVM RMSE:",fw.get_svm_rmse())
     
     #print("SVM TRAIN Y-VALUES PREDICTED", svm_model.predict(fw.X_train))
-    regr_train_predict = regr.predict(fw.X_train)
+#     regr_train_predict = regr.predict(fw.X_train)
     
-    print("SVM TRAIN Y-VALUES PREDICTED", regr_train_predict)
+#     print("SVM TRAIN Y-VALUES PREDICTED", regr_train_predict)
     
-    print("SVM TRAIN Y-VALUES DATA", fw.y_train)
+#     print("SVM TRAIN Y-VALUES DATA", fw.y_train)
     
-    print("RMSE TRAIN", rmse(fw.y_train, regr_train_predict))
+#     print("RMSE TRAIN", rmse(fw.y_train, regr_train_predict))
     
-    regr_test_predict = regr.predict(fw.X_test)
+#     regr_test_predict = regr.predict(fw.X_test)
     
-    print("SVM TEST Y-VALUES PREDICTED", regr_test_predict)
+#     print("SVM TEST Y-VALUES PREDICTED", regr_test_predict)
     
-    print("SVM TEST Y-VALUES DATA", fw.y_test)
+#     print("SVM TEST Y-VALUES DATA", fw.y_test)
     
-    print("RMSE TEST", rmse(fw.y_test, regr_test_predict))
+#     print("RMSE TEST", rmse(fw.y_test, regr_test_predict))
     
     
     #print("MLP RMSE:",fw.get_mlp_rmse())
